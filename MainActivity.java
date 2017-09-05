@@ -4,8 +4,10 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.ColorRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,9 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -22,12 +27,22 @@ import java.util.Date;
     MainActivity ma;
 
     private static final int DILOG_ID = 0 ;
-    EditText docname,docamount,dd;
+        private static final int DILOGTIME_ID = 1 ;
+
+        EditText docname,docamount,dd;
     ImageButton btn;
+        RadioGroup rg;
+        RadioButton defTime,customTime;
 
 
-    int year_x,month_x,day_x,monthcopy_x;
+
+
+        int year_x,month_x,day_x,monthcopy_x;
     static  long calendrum ;
+
+        int hour_x,minute_x,second_x;
+
+
 
     int alarmid ;
     long intentid =0;
@@ -56,6 +71,13 @@ String nametaker,nametaker2;
 
         docname = (EditText)findViewById(R.id.doctitle);
         docamount = (EditText)findViewById(R.id.amount);
+
+        rg = (RadioGroup) findViewById(R.id.radioGroup);
+
+        defTime = (RadioButton) findViewById(R.id.radioDefault);
+        customTime= (RadioButton) findViewById(R.id.radioCustom);
+        defTime.getId();
+
 
         dd = (EditText)findViewById(R.id.dateset);
         btn = (ImageButton)findViewById(R.id.cal);
@@ -86,7 +108,8 @@ String nametaker,nametaker2;
     protected Dialog onCreateDialog(int id) {
         if(id == DILOG_ID)
             return new DatePickerDialog(this,dpickerListner,year_x,month_x,day_x);
-
+        else if(id == DILOGTIME_ID)
+            return new TimePickerDialog(this,tpickerListner,hour_x,minute_x,true);
         return null;
     }
 
@@ -103,9 +126,21 @@ String nametaker,nametaker2;
 
         }
     };
+    private TimePickerDialog.OnTimeSetListener tpickerListner = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+            hour_x = i;
+            minute_x= i1;
+            Toast.makeText(MainActivity.this, hour_x +"hrs  "+ minute_x +"minutes" , Toast.LENGTH_SHORT).show();
+
+
+        }
+    };
 
 
     public void AlarmSaver(View view) {
+
 try {
     nametaker = docname.getText().toString();
     nametaker2 = dbHelper.getCloneAll(nametaker);
@@ -170,9 +205,9 @@ try {
             calendar.set(Calendar.YEAR,year_x);
             calendar.set(Calendar.MONTH,monthcopy_x);
             calendar.set(Calendar.DATE,day_x);
-            calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-            calendar.set(Calendar.HOUR_OF_DAY, 22);
-            calendar.set(Calendar.MINUTE,Integer.parseInt(docamount.getText().toString()));  //
+          //  calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            calendar.set(Calendar.HOUR_OF_DAY, hour_x);
+            calendar.set(Calendar.MINUTE,minute_x);  //
             calendar.set(Calendar.SECOND, 0);
 
             calendrum = calendar.getTimeInMillis();
@@ -190,7 +225,7 @@ try {
     public void CancelAlarm(View view) {
         Log.v("Log3","CancelAlarm Triggered! ");
 
-
+        docname.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
     public void camerabuttonpressed(View view) {
@@ -201,4 +236,24 @@ try {
 
 
     }
-}
+
+        public void CustomTimeClicke(View view) {
+Log.v("RadioButton","CustomTimeClicke Working");
+
+
+            showDialog(DILOGTIME_ID);
+
+
+
+        }
+
+        public void DefaultTimeClicke(View view) {
+            Log.v("RadioButton","DefaultTimeClicke Working");
+
+            hour_x =9;
+            minute_x=0;
+            Toast.makeText(this, "Default Time For Alarm @9.00 a.m", Toast.LENGTH_SHORT).show();
+
+
+        }
+    }
